@@ -3,11 +3,11 @@ YUV420 Compatibility with CompressAI to the Hyperprior Model
 
 To use this:
 
-1) install the CompressAI library as instructed:
+1) Create a New Virtual Enviornment and Have a fresh install of the Original CompressAI library:
 https://github.com/InterDigitalInc/CompressAI
 
-2) Within CompressAI library location. Replace the "Utils.py" and "__init__.py" Files in the ./compressai/datasets directory with appropriate files in Git changes folder
-3) Implement similar change in the CompressAI library location: ./compressai/models Directory for the files "__init__.py" and "priors.py" with appropriate files in Git changes folder
+2) Within Newly Created CompressAI library location. Replace the "Utils.py" and "__init__.py" Files in the ./compressai/datasets directory with appropriate files in Git "changes" folder
+5) Implement similar change in the CompressAI library location: ./compressai/models Directory for the files "__init__.py" and "priors.py" with appropriate files in Git "changes" folder
 
 4) Use Python file QualityTest.py to implement models for single image compression -> reconstruction
 
