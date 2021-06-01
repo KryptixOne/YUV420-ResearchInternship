@@ -16,6 +16,10 @@ OR
 5) Use Python file TestWithOwnNetwork.py to train own model based on YUV Images.
 
 
+For Checkpoints:
+
+https://drive.google.com/drive/folders/1VvpAMCk60HIhphbFVlDgWp0IlxH_JL2-?usp=sharing
+
 ********************************
 How to run QualityTest.py
 ********************************
