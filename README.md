@@ -24,22 +24,28 @@ Run quality test with the following input parameters:
 
   
 #dataset directory. Be sure to create a folder with the name "test". In this folder put the SINGLE image you wish to compress
+
 -d C:\Users\path\to\Compressable_Image_folder 
 
 #type of Device to be used. cpu or cuda
+
 --cuda  
 
 #Training type/ Compression type. 1 = Separate Paths, 2 = PixelShuffle
+
 --training_type 1  
 
 
 #Lambda that your checkpoint/model is associated with
+
 --lambda 
  
 #Full path and file name of the reconstructed Image
+
 --FinalFileName C:\Users\Path\to\Directory\ReconstructedImageName.yuv  
 
 #Location of the checkpoint you wish to use.
+
 --checkpoint C:\Users\Path\To\Desired\Checkpoint\Directory\checkpoint_best_loss.pth.tar
 
 ********************************
@@ -47,6 +53,7 @@ How to run TestWithOwnNetwork.py
 ********************************
 
 #Same procedure as with the original compressAI documentation except for the following inclusion:
+
 
 --training_type 1   # Training type/ Compression type. 1 = Separate Paths, 2 = PixelShuffle
 
