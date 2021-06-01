@@ -117,17 +117,14 @@ def configure_optimizers(net, args):
 def train_one_epoch(
         model, criterion, train_dataloader, optimizer, aux_optimizer, epoch, clip_max_norm
 ):
-    #print('in train 1 epoch')
+
     model.train()
     device = next(model.parameters()).device
-    #print('after device')
+
 
     for i, d in enumerate(train_dataloader):
-        #print('inside')
-        #print("Shape of d: ", d.shape)
+
         d = d.to(device)
-        # print("Shape of d: ", d.shape)
-        # print(d)
         optimizer.zero_grad()
         aux_optimizer.zero_grad()
 
@@ -167,7 +164,6 @@ def test_epoch(epoch, test_dataloader, model, criterion):
     with torch.no_grad():
         for d in test_dataloader:
             d = d.to(device)
-            #print('dshape for test', d.shape)
             out_net = model(d)
             out_criterion = criterion(out_net, d)
 
@@ -296,8 +292,7 @@ def main(argv):
 
     train_dataset = YUVImageFolder(args.dataset, split="train", transform=train_transforms, Training_Type=TrainingType)
     test_dataset = YUVImageFolder(args.dataset, split="test", transform=test_transforms, Training_Type=TrainingType)
-    #print('at device')
-    #device ='cpu'
+
     device = "cuda" if args.cuda and torch.cuda.is_available() else "cpu"
     print('running with', device)
 
@@ -316,7 +311,7 @@ def main(argv):
         shuffle=False,
         pin_memory=(device == "cuda"),
     )
-    #print('after data')
+
     if TrainingType == 1:
         net = ScaleHyperpriorYUV_SEP(128, 192)
     elif TrainingType == 2:
@@ -325,10 +320,7 @@ def main(argv):
     net = net.double()
     net = net.to(device)
 
-    #print('after net')
-    # if args.cuda and torch.cuda.device_count() > 1:
-    #    net = CustomDataParallel(net)
-    #print('after if')
+
     optimizer, aux_optimizer = configure_optimizers(net, args)
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, "min")
     criterion = RateDistortionLoss(lmbda=args.lmbda)
@@ -355,9 +347,7 @@ def main(argv):
             epoch,
             args.clip_max_norm,
         )
-        #print('test epoch')
         loss = test_epoch(epoch, test_dataloader, net, criterion)
-        #print('test complete')
         lr_scheduler.step(loss)
 
         is_best = loss < best_loss

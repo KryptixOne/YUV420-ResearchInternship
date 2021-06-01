@@ -128,33 +128,18 @@ def test_epoch_with_save(epoch, test_dataloader, model, criterion,TrainingType,L
         with torch.no_grad():
             for d in test_dataloader:
                 d = d.to(device)
-                #print('dshape for test', d.shape)
-                #get data D 444
-                #change shape D_changed
                 d_changed,paddedDim,paddedDim0Flag,paddedDim1Flag=PadrForNonSquare(d,TrainingType,deviceIn)
-                #print('d_changed shape for test', d_changed.shape)
-                #send to net
-                #recieve output
-                #compare out_net with D_changed
-                #unpad D_changed
-                #save image
-
                 out_net = model(d_changed)
                 out_criterion = criterion(out_net, d_changed)
-
                 aux_loss.update(model.aux_loss())
                 bpp_loss.update(out_criterion["bpp_loss"])
                 loss.update(out_criterion["loss"])
                 mse_loss.update(out_criterion["mse_loss"])
-                #print('shape of outnet',out_net["x_hat"].shape)
-                #exit()
-                #pass in 444
+
                 imgY_new, imgU_new, imgV_new = DepadTensor(out_net["x_hat"], paddedDim, paddedDim0Flag, paddedDim1Flag,TrainingType)
                 filename = finalName
                 bit_flag ='uint8'
-                #image is empty. wtf
-                #print(imgY_new)
-                #exit()
+
                 imWrite_YUV(imgY_new,imgU_new,imgV_new,filename,bit_flag)
 
 
@@ -163,36 +148,16 @@ def test_epoch_with_save(epoch, test_dataloader, model, criterion,TrainingType,L
         with torch.no_grad():
             for d in test_dataloader:
                 d = d.to(device)
-                #print('dshape for test', d.shape)
-
-                # get data D 444
-                # change shape D_changed
-                d_changed, paddedDim, paddedDim0Flag, paddedDim1Flag = PadrForNonSquare(d,TrainingType,device)
-                #print('d_changed shape for test', d_changed.shape)
-
-                # send to net
-                # recieve output
-                # compare out_net with D_changed
-                # unpad D_changed
-                # save image
-
+                d_changed, paddedDim, paddedDim0Flag, paddedDim1Flag = PadrForNonSquare(d,TrainingType,deviceIn)
                 out_net = model(d_changed)
                 out_criterion = criterion(out_net, d_changed)
-
                 aux_loss.update(model.aux_loss())
                 bpp_loss.update(out_criterion["bpp_loss"])
                 loss.update(out_criterion["loss"])
                 mse_loss.update(out_criterion["mse_loss"])
-                # print('shape of outnet',out_net["x_hat"].shape)
-                # exit()
-                # pass in 444
                 imgY_new, imgU_new, imgV_new = DepadTensor(out_net["x_hat"], paddedDim, paddedDim0Flag, paddedDim1Flag,TrainingType)
-                #exit()
                 filename = finalName
                 bit_flag = 'uint8'
-                # image is empty. wtf
-                # print(imgY_new)
-                # exit()
                 imWrite_YUV(imgY_new, imgU_new, imgV_new, filename, bit_flag)
 
 
@@ -313,7 +278,6 @@ def main(argv):
         test_dataset = YUVImageFolder(args.dataset, split="test",Training_Type=TrainingType)
 
         device = "cuda" if args.cuda and torch.cuda.is_available() else "cpu"
-        #device ='cpu'
         print('running with', device)
 
         test_dataloader = DataLoader(
@@ -333,7 +297,7 @@ def main(argv):
 
         net = net.double()
         net = net.to(device)
-        #summary(net, (3, 256, 256), 8)
+        #summary(net, (3, 256, 256), 8) # if you wish to see the summary, change net.double() to net.float()
 
         optimizer, aux_optimizer = configure_optimizers(net, args)
         lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, "min")
