@@ -67,7 +67,7 @@ class ImageFolder(Dataset):
         
         if self.transform:
             newone = self.transform(img)
-            print(newone.shape)
+
             return newone
         return img
 
@@ -108,7 +108,7 @@ class YUVImageFolder(Dataset):
 
         self.transform = transform
         self.TrainingType = Training_Type
-        #print('self xform is',self.transform )
+
 
 
     def __getitem__(self, index):
@@ -122,9 +122,8 @@ class YUVImageFolder(Dataset):
         print('Training Type is: ',self.TrainingType)
 
         if self.TrainingType == 1 : #training type = seperate paths
-            #imread -> 420 to 444 -> RandCrop -> model(RandCrop) -> 444to420 ->  Y,U,V -> Altered_network
 
-            imgY, imgU, imgV = YUV_Imread(self.samples[index]) #get numpyarray img read
+            imgY, imgU, imgV = YUV_Imread(self.samples[index])
 
             Yt, Ut, Vt = YUV_NumpyToTensor(imgY, imgU, imgV)
             Yt = Yt.unsqueeze(0)
@@ -132,33 +131,29 @@ class YUVImageFolder(Dataset):
             Vt = Vt.unsqueeze(0)
             img = yuv_420_to_444((Yt,Ut,Vt)).squeeze(0) #upsampled image to 444
             if self.transform:
-                #print('xform')
-                Newone = self.transform(img)#.squeeze(0)
-                #print('Newone',Newone.shape)
+
+                Newone = self.transform(img)
+
                 return Newone
 
-            return img #paddedDim0Flag ,paddedDim1Flag)
+            return img
 
         if self.TrainingType == 2: # Pixel Shuffle Creates Quarter images
 
             imgY, imgU, imgV = YUV_Imread(self.samples[index])
             New_Y = Shuffler(imgY)
-            #print('New_Y',New_Y.shape)
             Yt, Ut, Vt = YUV_NumpyToTensor(New_Y, imgU, imgV)
-            #print('Yt', Yt.shape)
             Yt = Yt.unsqueeze(0)
             Ut = Ut.unsqueeze(0)
             Vt = Vt.unsqueeze(0)
-            #print('Yt_after unsqueeze',Yt.shape)
             img = (torch.cat((Yt, Ut, Vt), dim=1)).squeeze(0)
-            #print('img',img.shape)
 
             if self.transform:
-                Newone = self.transform(img)#.squeeze(0)
+                Newone = self.transform(img)
 
                 return Newone
 
-            return img #paddedDim0Flag ,paddedDim1Flag)
+            return img
 
             return
 
@@ -178,13 +173,11 @@ def DeShuffler(Y0,Y1,Y2,Y3):
     NewRow = RowSize*2
     NewCol = ColSize*2
 
-    #print('New Row Size', NewRow)
-    #print('New Col Size', NewCol)
 
     ReconY = np.zeros([NewRow,NewCol,1])
     for i in range(int(NewRow)):
         for j in range(int(NewCol)):
-            #print(i,' and ',j)
+
             if j % 2 == 0 and i % 2 == 0:
                 ReconY[i, j,:] = Y0[int(i / 2), int(j / 2),:]
             elif j % 2 == 1 and i % 2 == 0:
@@ -225,29 +218,7 @@ def Shuffler(YComp): #numpy input
                 D_new[int(i / 2), int(j / 2)] = A[i, j]
             else:
                 continue
-    """
-    # Quarter resolution 2
-    for i in range(int(RowSize)):
-        for j in range(int(ColSize)):
-            if j % 2 == 1 and i % 2 == 0:
-                B_new[int(i / 2), int(j / 2)] = A[i, j]
-            else:
-                continue
-    # Quarter resolution 3
-    for i in range(int(RowSize)):
-        for j in range(int(ColSize)):
-            if j % 2 == 0 and i % 2 == 1:
-                C_new[int(i / 2), int(j / 2)] = A[i, j]
-            else:
-                continue
-    # Quarter resolution 4
-    for i in range(int(RowSize)):
-        for j in range(int(ColSize)):
-            if j % 2 == 1 and i % 2 == 1:
-                D_new[int(i / 2), int(j / 2)] = A[i, j]
-            else:
-                continue
-    """
+
     Y_new = np.zeros([int(RowSize / 2), int(ColSize / 2),4])
     Y_new[:, :, 0] = A_new
     Y_new[:, :, 1] = B_new
@@ -286,7 +257,7 @@ def YUV_Imread (filename):
     with open (filename, 'rb') as fid:
         for i in range(Frames):
             FullFileArray = np.fromfile(fid, read_bit_str)
-            #print (FullFileArray)
+
             counter =0;
             for  j in range(height):
                 for k in range(width):
@@ -300,19 +271,12 @@ def YUV_Imread (filename):
                 for k in range(int(width/2)):
                     V[j,k,i] = FullFileArray[counter]
                     counter +=1
-                    
-    #Y=torch.from_numpy(Y)
-    #U=torch.from_numpy(U)
-    #V=torch.from_numpy(V)
+
     return Y, U, V
 
 
 def YUV_NumpyToTensor(Y,U,V):
-    #Y U V need to be unaltered pure range values.
-    #i.e Y [16 235] annd U,V [16,240]
-    #Y_tensor = torch.from_numpy((Y-16)*(1/219))
-    #U_tensor = torch.from_numpy((U-16)*(1/224))
-    #V_tensor = torch.from_numpy((V-16)*(1/224))
+
     Y_tensor = torch.from_numpy(Y * (1 / 255))
     U_tensor = torch.from_numpy(U * (1 / 255))
     V_tensor = torch.from_numpy(V * (1 / 255))
@@ -351,7 +315,7 @@ def ZeroPad3DNumpyArray(npArray, NZ_Height, NZ_Width):
     dim2 = int(npArray.shape[2])
     NZ_Height= int(NZ_Height)
     NZ_Width=int(NZ_Width)
-    #print(dim0,dim1,dim2,NZ_Width,NZ_Height)
+
     PaddedArray = np.zeros([
                             int(dim0 + 2 * NZ_Height),
                             int(dim1 + 2 * NZ_Width),
@@ -382,7 +346,7 @@ def PadrForNonSquare(DataTensor,TrainingType,deviceInput): #Quality Test Version
 
 
         Ydim0 = int(imgY.shape[0])
-        print('Yshape', imgY.shape)
+
 
         Ydim1 = int(imgY.shape[1])
         Ydim2 = int(imgY.shape[2])
@@ -394,7 +358,7 @@ def PadrForNonSquare(DataTensor,TrainingType,deviceInput): #Quality Test Version
         paddedDim1Flag = 0
         paddedDim =3
         padValue = 0.5
-        if Ydim0 > Ydim1:  # keep rows same, padd col with zeros
+        if Ydim0 > Ydim1:  # keep rows same, pad col with zeros
             paddedDim = 1
             if ceil(log2(Ydim0)) == log2(Ydim0):
                 Ydim0_new = Ydim0
@@ -455,7 +419,7 @@ def PadrForNonSquare(DataTensor,TrainingType,deviceInput): #Quality Test Version
                 Ydim1_new = Ydim1
             else:
                 Ydim1_new = 2 ** (ceil(log2(Ydim1)))
-                #print('Ydim1 new', Ydim1)
+
 
             num_dim1_zeros_Y = int((Ydim1_new - Ydim1) * 1 / 2)
             num_dim1_zeros_UV = int(num_dim1_zeros_Y * 1 / 2)
@@ -509,7 +473,7 @@ def PadrForNonSquare(DataTensor,TrainingType,deviceInput): #Quality Test Version
     elif TrainingType ==2:
         # moves tensor back to (rowxColXchannel format)
         npDataTensor = (((DataTensor.squeeze(0)).permute(1, 2, 0)).cpu()).numpy()
-        #print(npDataTensor.shape)
+
 
         imgY0= np.expand_dims(npDataTensor[:,:,0],axis = 2)
         imgY1 = np.expand_dims(npDataTensor[:, :, 1],axis = 2)
@@ -519,7 +483,7 @@ def PadrForNonSquare(DataTensor,TrainingType,deviceInput): #Quality Test Version
         imgV = np.expand_dims(npDataTensor[:,:,5],axis = 2)
 
         Ydim0 = int(imgY0.shape[0])
-        print('Yshape', imgY0.shape)
+
 
 
         Ydim1 = int(imgY0.shape[1])
@@ -541,9 +505,9 @@ def PadrForNonSquare(DataTensor,TrainingType,deviceInput): #Quality Test Version
                 Ydim0_new = 2 ** (ceil(log2(Ydim0)))
 
             num_dim0_zeros_Y = int((Ydim0_new - Ydim0) * 1 / 2)
-            #num_dim0_zeros_UV = int(num_dim0_zeros_Y * 1 / 2)
+
             numYZeros = int((Ydim0_new - Ydim1) * 1 / 2)
-            #numUVZeros = int(numYZeros * 1 / 2)
+
 
             PaddedArrayY0 = np.zeros([
                 int(Ydim0_new),
@@ -618,7 +582,7 @@ def PadrForNonSquare(DataTensor,TrainingType,deviceInput): #Quality Test Version
 
 
 
-            #Paddedimg = yuv_420_to_444((Yt, Ut, Vt))  # upsampled padded image back to 444
+
 
         if Ydim1 > Ydim0:  # keep col same, pad row with zeros
             paddedDim = 0
@@ -626,12 +590,12 @@ def PadrForNonSquare(DataTensor,TrainingType,deviceInput): #Quality Test Version
                 Ydim1_new = Ydim1
             else:
                 Ydim1_new = 2 ** (ceil(log2(Ydim1)))
-                # print('Ydim1 new', Ydim1)
+
 
             num_dim1_zeros_Y = int((Ydim1_new - Ydim1) * 1 / 2)
-            #num_dim1_zeros_UV = int(num_dim1_zeros_Y * 1 / 2)
+
             numYZeros = int((Ydim1_new - Ydim0) * 1 / 2)
-            #numUVZeros = int(numYZeros * 1 / 2)
+
 
             PaddedArrayY0 = np.zeros([
                 int(Ydim0 + 2 * numYZeros),
@@ -702,6 +666,7 @@ def PadrForNonSquare(DataTensor,TrainingType,deviceInput): #Quality Test Version
             Paddedimg = (torch.cat((Yt0, Yt1, Yt2, Yt3, Ut, Vt), dim=1))
 
         # recombine images and turn back to tensor.
+
         if deviceInput =='cuda':
             Paddedimg =Paddedimg.cuda()
         return Paddedimg, paddedDim, paddedDim0Flag, paddedDim1Flag
@@ -777,7 +742,7 @@ def DepadTensor(DataTensor, paddedDim,paddedDim0Flag,paddedDim1Flag,TrainingType
     elif TrainingType ==2:
         # Convert back to 420
         npDataTensor = (((DataTensor.squeeze(0)).permute(1, 2, 0)).cpu()).numpy()
-        # print(npDataTensor.shape)
+
         #Row X Col X Channel
         imgY0 = np.expand_dims(npDataTensor[:, :, 0], axis=2)
         imgY1 = np.expand_dims(npDataTensor[:, :, 1], axis=2)
@@ -798,14 +763,13 @@ def DepadTensor(DataTensor, paddedDim,paddedDim0Flag,paddedDim1Flag,TrainingType
 
         elif paddedDim == 1:  # means that Col got heavily padded
             numYZeros = paddedDim1Flag
-            #numUVZeros = int(paddedDim1Flag * 1 / 2)
+
             num_dim0_zeros_Y = paddedDim0Flag
-            #num_dim0_zeros_UV = int(num_dim0_zeros_Y * 1 / 2)
+
             # determine old dimensions
             Ydim1_new = int(Ydim1 - 2 * numYZeros)
             Ydim0_new = int(Ydim0 - 2 * num_dim0_zeros_Y)
-            #UVdim1_new = int(Ydim1_new * 1 / 2)
-            #UVdim0_new = int(Ydim0_new * 1 / 2)
+
 
             UnPaddedArrayY0 = np.zeros([Ydim0_new, Ydim1_new, Ydim2])
             UnPaddedArrayY0[:, :, :] = imgY0[num_dim0_zeros_Y:Ydim0 - num_dim0_zeros_Y, numYZeros: Ydim1 - numYZeros, :]
@@ -869,7 +833,7 @@ def DepadTensor(DataTensor, paddedDim,paddedDim0Flag,paddedDim1Flag,TrainingType
 
         imgY_new = DeShuffler(imgY0_new,imgY1_new,imgY2_new,imgY3_new)
         imgY_new = torch.from_numpy(imgY_new)
-        #print(imgY_new.shape)
+
 
         return imgY_new, imgU_new, imgV_new
 

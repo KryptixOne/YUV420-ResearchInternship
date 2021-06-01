@@ -258,7 +258,7 @@ class ScaleHyperprior(CompressionModel):
 
     def forward(self, x):
         y = self.g_a(x)
-        print(y.shape)
+
         z = self.h_a(torch.abs(y))
         z_hat, z_likelihoods = self.entropy_bottleneck(z)
         scales_hat = self.h_s(z_hat)
@@ -722,7 +722,7 @@ class ScaleHyperpriorYUV_Shuffle(CompressionModel):
 
     def forward(self, x):
         y = self.g_a(x)
-        #print(y.shape)
+
         z = self.h_a(torch.abs(y))
         z_hat, z_likelihoods = self.entropy_bottleneck(z)
         scales_hat = self.h_s(z_hat)
@@ -862,54 +862,34 @@ class ScaleHyperpriorYUV_SEP(CompressionModel):
 
         Yinput = x420[0]
 
-        #print('extracted Y', Yinput.shape)
-
         UVinput = torch.cat((x420[1],x420[2]),1)
-        #print('UV SHAPE',UVinput.shape)
-        #print((UVinput.squeeze(1)).shape)
 
         y_Y = self.Y_g_a(Yinput)
-        #print(y_Y.shape)
 
         y_UV = self.UV_g_a(UVinput)
 
-        #print('After G_A Y',y_Y.shape)
-        #print('After G_A UV',y_UV.shape)
-
         y = torch.cat((y_Y, y_UV))
-        #print('Shape of Y after combination',y.shape)
 
         z = self.h_a(torch.abs(y))
         z_hat, z_likelihoods = self.entropy_bottleneck(z)
         scales_hat = self.h_s(z_hat)
         y_hat, y_likelihoods = self.gaussian_conditional(y, scales_hat)
-        #print('Y_hat shape', y_hat.shape)
+
         y_hat_split = torch.split(y_hat,split_size_or_sections= UVinput.shape[0] ,dim =0)
-        #print(y_hat_split[1].shape)
-        #exit()
+
         y_hat_Y = y_hat_split[0]
         y_hat_UV = y_hat_split[1]
 
         x_hat_Y = self.Y_g_s(y_hat_Y)
-        #print(x_hat_Y.shape)
-        #exit()
+
         x_hat_UV = self.UV_g_s(y_hat_UV)
-        print(x_hat_UV.shape)
-        #exit()
+
         x_hat_UVTuple = torch.split(x_hat_UV,split_size_or_sections=1,dim =1)
 
         x_hat_U = x_hat_UVTuple[0]
         x_hat_V = x_hat_UVTuple[1]
 
-        #print('Xhat Y shape', x_hat_Y.shape)
-        #print('Xhat UV shape' , x_hat_UV.shape)
-        #print('Xhat U shape', x_hat_U.shape)
-        #print('Xhat V shape', x_hat_V.shape)
-
         x_hat = yuv_420_to_444((x_hat_Y,x_hat_U,x_hat_V))
-        #print(x_hat.shape)
-        #exit()
-
 
         # X_hat is the reconstructed YUV420 Image, so should have similar structure to input x
         return {
