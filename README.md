@@ -16,6 +16,8 @@ OR
 5) Use Python file TestWithOwnNetwork.py to train own model based on YUV Images.
 
 
+Note: PSNRCALC.py is run seperately
+
 For Checkpoints:
 
 https://drive.google.com/drive/folders/1VvpAMCk60HIhphbFVlDgWp0IlxH_JL2-?usp=sharing
